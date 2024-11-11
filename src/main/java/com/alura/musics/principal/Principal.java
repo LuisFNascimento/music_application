@@ -4,6 +4,7 @@ import com.alura.musics.model.Artista;
 import com.alura.musics.model.Musica;
 import com.alura.musics.model.TipoArtista;
 import com.alura.musics.repository.ArtistaRepository;
+import com.alura.musics.service.ConsultaChatGPT;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +75,10 @@ public class Principal {
     }
 
     private void pesquisarDadosArtitas() {
+        System.out.println("Pesquisar dados sobre qual artista? ");
+        var nome = leitura.nextLine();
+        var resposta = ConsultaChatGPT.obterInfomacao(nome);
+        System.out.println(resposta.trim());
     }
 
     private void buscarMusicaPorArtita() {
