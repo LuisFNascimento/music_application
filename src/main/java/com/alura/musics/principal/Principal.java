@@ -1,10 +1,23 @@
 package com.alura.musics.principal;
 
+import com.alura.musics.model.Artista;
+import com.alura.musics.model.Musica;
+import com.alura.musics.model.TipoArtista;
+import com.alura.musics.repository.ArtistaRepository;
+
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Principal {
 
+    private final ArtistaRepository repositorio;
+
     private Scanner leitura = new Scanner(System.in);
+
+    public Principal(ArtistaRepository repositorio) {
+        this.repositorio = repositorio;
+    }
 
     public void exibeMenu() {
 
@@ -64,15 +77,46 @@ public class Principal {
     }
 
     private void buscarMusicaPorArtita() {
+        System.out.println("Buscar música de que artista? ");
+        var nome = leitura.nextLine();
+        List<Musica> musicas = repositorio.buscarMusicasPorArtista(nome);
+        musicas.forEach(System.out::println);
     }
 
     private void listarMusicaBuscada() {
+        List<Artista> artistas = repositorio.findAll();
+        artistas.forEach(a -> a.getMusicas().forEach(System.out::println));
     }
 
     private void cadastrarMusicas() {
+        System.out.println("Cadastrar muúsica de que artista? ");
+        var nome = leitura.nextLine();
+        Optional<Artista> artista = repositorio.findByNomeContainingIgnoreCase(nome);
+        if(artista.isPresent()){
+            System.out.println("Informe o título da música: ");
+            var nomeMusica = leitura.nextLine();
+            Musica musica = new Musica(nomeMusica);
+            musica.setArtista(artista.get());
+            artista.get().getMusicas().add(musica);
+            repositorio.save(artista.get());
+        } else {
+            System.out.println("Artista não encontrado! ");
+        }
     }
 
     private void cadastrarArtitas() {
-        
+        var cadastrarNovo = "S";
+
+        while (cadastrarNovo.equalsIgnoreCase("s")) {
+            System.out.println("Informe o nome desse artista: ");
+            var nome = leitura.nextLine();
+            System.out.println("informe o tipo desse artista: (solo, dupla ou banda) ");
+            var tipo = leitura.nextLine();
+            TipoArtista tipoArtista = TipoArtista.valueOf(tipo.toUpperCase());
+            Artista artista = new Artista(nome, tipoArtista);
+            repositorio.save(artista);
+            System.out.println("Cadastrar novo artista? (S/N");
+            cadastrarNovo = leitura.nextLine();
+        }
     }
 }
